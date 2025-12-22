@@ -1,0 +1,45 @@
+data_sources:
+  # === 数据源 1: Ground Truth ===
+  - name: ground_truth
+    data_dir: sweeper_gt
+    pc_topic: gt_point_cloud
+    
+    # 1. 原始多彩框 (按类别: 车/人等)
+    box_topic: gt_bounding_boxes
+    
+    # 2. [新增] 单色框配置 (GT用绿色)
+    mono_box_topic: gt_boxes_green
+    box_color: [0, 1, 0]   # RGB: 绿色
+    
+    has_score: false
+    point_dim: 4
+    ext: '.bin'
+    seg_label_suffix: .label
+    seg_label_dtype: 'uint8'
+
+  # === 数据源 2: Prediction ===
+  - name: prediction
+    data_dir: sweeper_predict
+    pc_topic: pred_point_cloud
+    
+    # 1. 原始多彩框
+    box_topic: pred_bounding_boxes
+    
+    # 2. [新增] 单色框配置 (Pred用红色)
+    mono_box_topic: pred_boxes_red
+    box_color: [1, 0, 0]   # RGB: 红色
+    
+    has_score: false
+    point_dim: 4
+    ext: '.bin'
+    seg_label_suffix: .label
+    seg_label_dtype: 'uint8'
+
+visualization:
+  auto_play: false
+  delay: 100
+  vis_seg: true
+  vis_label: true
+  label_scale: 1.0  # 标签字体大小（单位：米），可调节范围：0.3-2.0
+  save_dir: output
+  verbose: true
