@@ -449,16 +449,19 @@ def evaluate_all(gt_dir: str, pred_dir: str, iou_thresh: float = 0.5) -> Dict:
         lines.append('')
         if overall_nds is not None:
             lines.append(f"总体 NDS: {overall_nds:.4f}")
-        lines.append(f"mAP: {overall_comps.get('mAP', 0.0):.4f}  mATE: {overall_comps.get('mATE', 0.0):.4f}  mASE: {overall_comps.get('mASE', 0.0):.4f}  mAOE: {overall_comps.get('mAOE', 0.0):.4f}  mAVE: {overall_comps.get('mAVE', 0.0):.4f}  mAAE: {overall_comps.get('mAAE', 0.0):.4f}")
+        # 将 mAOE 明确标注为弧度 (rad)
+        lines.append(f"mAP: {overall_comps.get('mAP', 0.0):.4f}  mATE: {overall_comps.get('mATE', 0.0):.4f}  mASE: {overall_comps.get('mASE', 0.0):.4f}  mAOE(rad): {overall_comps.get('mAOE', 0.0):.4f}  mAVE: {overall_comps.get('mAVE', 0.0):.4f}  mAAE: {overall_comps.get('mAAE', 0.0):.4f}")
     except Exception:
         pass
     lines.append('')
-    lines.append(f"{'类别':<15} {'AP':>8}  {'Precision':>10} {'Recall':>8}  {'TP':>6} {'FP':>6} {'FN':>6} {'mATE':>8} {'mASE':>8} {'mAOE(deg)':>10}")
+    lines.append(f"{'类别':<15} {'AP':>8}  {'Precision':>10} {'Recall':>8}  {'TP':>6} {'FP':>6} {'FN':>6} {'mATE':>8} {'mASE':>8} {'mAOE(rad)':>10}")
     lines.append('-'*80)
     for c in classes:
         m = class_metrics[c]
-        mAOE_deg = (m['mAOE'] * 180.0 / math.pi) if m['mAOE'] is not None else None
-        lines.append(f"{c:<15} {m['ap']:>8.4f}  {m['precision']:>10.4f} {m['recall']:>8.4f}  {m['tp']:>6} {m['fp']:>6} {m['fn']:>6} {str(m['mATE'])[:8]:>8} {str(m['mASE'])[:8]:>8} {str(mAOE_deg)[:10]:>10}")
+        # mAOE 已以弧度计算，直接输出 rad
+        mAOE_rad = m['mAOE'] if m['mAOE'] is not None else None
+        mAOE_str = f"{mAOE_rad:.4f}" if mAOE_rad is not None else "None"
+        lines.append(f"{c:<15} {m['ap']:>8.4f}  {m['precision']:>10.4f} {m['recall']:>8.4f}  {m['tp']:>6} {m['fp']:>6} {m['fn']:>6} {str(m['mATE'])[:8]:>8} {str(m['mASE'])[:8]:>8} {mAOE_str:>10}")
     lines.append('')
     lines.append('='*80)
     lines.append('按距离分段评估 (平面距离)')
@@ -468,12 +471,14 @@ def evaluate_all(gt_dir: str, pred_dir: str, iou_thresh: float = 0.5) -> Dict:
         comps = v.get('nds_components', {})
         lines.append(f"区间 {k} 米:")
         lines.append(f"NDS: {v.get('nds', 0.0):.4f}")
-        lines.append(f"mAP: {comps.get('mAP', 0.0):.4f}  mATE: {comps.get('mATE', 0.0):.4f}  mASE: {comps.get('mASE', 0.0):.4f}  mAOE: {comps.get('mAOE', 0.0):.4f}  mAVE: {comps.get('mAVE', 0.0):.4f}  mAAE: {comps.get('mAAE', 0.0):.4f}")
-        lines.append(f"  {'类别':<15} {'AP':>8}  {'Precision':>10} {'Recall':>8}  {'TP':>6} {'FP':>6} {'FN':>6} {'mATE':>8} {'mASE':>8} {'mAOE(deg)':>10}")
+        # 区间的组成指标，mAOE 以弧度显示
+        lines.append(f"mAP: {comps.get('mAP', 0.0):.4f}  mATE: {comps.get('mATE', 0.0):.4f}  mASE: {comps.get('mASE', 0.0):.4f}  mAOE(rad): {comps.get('mAOE', 0.0):.4f}  mAVE: {comps.get('mAVE', 0.0):.4f}  mAAE: {comps.get('mAAE', 0.0):.4f}")
+        lines.append(f"  {'类别':<15} {'AP':>8}  {'Precision':>10} {'Recall':>8}  {'TP':>6} {'FP':>6} {'FN':>6} {'mATE':>8} {'mASE':>8} {'mAOE(rad)':>10}")
         for c in classes:
             m = v['class_metrics'][c]
-            mAOE_deg = (m['mAOE'] * 180.0 / math.pi) if m['mAOE'] is not None else None
-            lines.append(f"  {c:<15} {m['ap']:>8.4f}  {m['precision']:>10.4f} {m['recall']:>8.4f}  {m['tp']:>6} {m['fp']:>6} {m['fn']:>6} {str(m['mATE'])[:8]:>8} {str(m['mASE'])[:8]:>8} {str(mAOE_deg)[:10]:>10}")
+            mAOE_rad = m['mAOE'] if m['mAOE'] is not None else None
+            mAOE_str = f"{mAOE_rad:.4f}" if mAOE_rad is not None else "None"
+            lines.append(f"  {c:<15} {m['ap']:>8.4f}  {m['precision']:>10.4f} {m['recall']:>8.4f}  {m['tp']:>6} {m['fp']:>6} {m['fn']:>6} {str(m['mATE'])[:8]:>8} {str(m['mASE'])[:8]:>8} {mAOE_str:>10}")
         lines.append('-'*60)
 
     term_file = out_dir / 'terminal_output.txt'
