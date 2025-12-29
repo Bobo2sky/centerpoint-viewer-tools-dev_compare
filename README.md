@@ -2,7 +2,7 @@
 
 这是一个点云可视化工具的 ROS2 版本,支持在 RViz2 中实时可视化点云、分割标签和 3D 边界框。
 
-### vis version
+# vis version
 ```bash 1.启动可视化系统（已启动）：
 ./start_visualization.sh
 ```
