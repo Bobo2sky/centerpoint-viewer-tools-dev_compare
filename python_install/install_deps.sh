@@ -116,3 +116,5 @@ else
 fi
 
 echo "=========================================="
+
+pip install matplotlib
